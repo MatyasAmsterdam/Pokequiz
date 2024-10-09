@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Purchase Succesful!
+{% endblock %}
+
+{% block main %}
+
+    <table style="width:100%" "height:20%" >
+        <tr>
+            <th>Symbol</th>
+            <th>Amount</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+        <tr>
+            <td>{{symbol}}</td>
+            <td>{{amount}}</td>
+            <td>{{price}}</td>
+            <td>{{total}}</td>
+        </tr>
+        <tr>
+            <td>Wallet</td>
+            <td></td>
+            <td></td>
+            <td>{{new_wallet}}</td>
+        </tr>
+
+    </table>
+
+{% endblock %}

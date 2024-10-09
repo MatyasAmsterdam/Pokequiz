@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Profille {{name}}
+{% endblock %}
+
+{% block main %}
+    <h2> This is your transaction history </h2>
+
+
+<table id = "index_table" style="width:100%" >
+    <tr>
+        <th>Type</th>
+        <th>Symbol</th>
+        <th>Amount</th>
+        <th>Price</th>
+        <th>Total</th>
+    </tr>
+
+    {% for purchase in transactions %}
+        <tr>
+              <td> {{ purchase["buy"] }} </td>
+              <td> {{ purchase["symbol"] }}</td>
+              <td> {{ purchase["amount"] }} </td>
+              <td> {{ purchase["price"] }} </td>
+              <td> {{ purchase["total"] }} </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
