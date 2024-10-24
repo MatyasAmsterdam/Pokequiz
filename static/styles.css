@@ -201,16 +201,13 @@ nav .navbar-brand .green
     margin-top: 10%;
 }
 
-#copy{
+.copy_paste{
     margin-top: 5%;
     width: 15%;
     height: 15%;
-}
-
-#paste{
-    margin-top: 5%;
-    width: 15%;
-    height: 15%;
+    border: 3px solid #dedcdc;
+    background-color: #dedcdc;
+    border-radius: 25%;
 }
 
 #input_progress{

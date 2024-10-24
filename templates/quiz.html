@@ -22,7 +22,7 @@
         <div class="popupCloseButton">&times;</div>
         <h4>Save the following string of text somewhere to save your progress</h4>
         
-        <img id="copy" class="button" src="/static/copy_icon.svg">
+        <img id="copy" class="copy_paste button" src="/static/copy_icon.svg">
         <p id="progress_string"></p>
     </div>
 </div>
@@ -34,7 +34,7 @@
         <div class="popupCloseButton">&times;</div>
         <h4>Please enter your datastring</h4>
 
-        <img id="paste" class="button" src="/static/paste_icon.png">
+        <img id="paste" class="copy_paste button" src="/static/paste_icon.png">
         <input type="text" id="input_progress" maxlength="4025" autocomplete="off" style="display: block;">
 
         <div class="button loadsave_button" id="load_confirm"> <h4>Load</h4> </div>
@@ -290,7 +290,7 @@
         }
 
         if (progress_list.length > 3){
-            for (let i = 2; i < progress_list.length; i++) {
+            for (let i = 3; i < progress_list.length; i++) {
                 addPokemon(progress_list[i]);
             }
         }
