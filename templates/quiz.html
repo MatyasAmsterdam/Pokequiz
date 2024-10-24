@@ -6,34 +6,97 @@
 
 {% block main %}
 
-<div>
+<div id="top-bar">
     <input type="text" class="input_name" maxlength="13" autocomplete="off" style="display: block;">
+    <h3 id="guessed_counter"> 0 / 1025</h3>
+    <div id="timer_box"> <h3 id="timer"> 00:00:00</h3> </div>
+    <div class="button loadsave_button" id="save_button"> <h4> Save</h4> </div>
+    <div class="button loadsave_button" id="load_button"> <h4> Load</h4> </div>
+
 </div>
 
+<!-- Save popup -->
+<div id="save_popup" class="hover_bkgr_fricc">
+    <span class="helper"></span>
+    <div id="pop_up_box">
+        <div class="popupCloseButton">&times;</div>
+        <h4>Save the following string of text somewhere to save your progress</h4>
+        
+        <img id="copy" class="button" src="/static/copy_icon.svg">
+        <p id="progress_string"></p>
+    </div>
+</div>
+
+<!-- Load popup -->
+<div id="load_popup" class="hover_bkgr_fricc">
+    <span class="helper"></span>
+    <div id="pop_up_box">
+        <div class="popupCloseButton">&times;</div>
+        <h4>Please enter your datastring</h4>
+
+        <img id="paste" class="button" src="/static/paste_icon.png">
+        <input type="text" id="input_progress" maxlength="4025" autocomplete="off" style="display: block;">
+
+        <div class="button loadsave_button" id="load_confirm"> <h4>Load</h4> </div>
+    </div>
+</div>
+
+
 <div id="regions">
-    <div class="regionbox" id="kanto"> 
-        <div id="kanto-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Kanto </h3> </div> </div> <!-- Placeholder for Kanto sprite containers -->
+    <div class="regioncol">
+        <div class="regionbox" id="kanto"> 
+            <div id="kanto-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Kanto </h3> </div> </div>
+        </div>
+
+        <div class="regionbox" id="johto"> 
+            <div id="johto-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Johto </h3> </div></div>
+        </div>
     </div>
 
-    <div class="regionbox" id="johto"> 
-        <div id="johto-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Johto </h3> </div></div> <!-- Placeholder for Johto sprite containers -->
+    <div class="regioncol">
+        <div class="regionbox" id="hoenn"> 
+            <div id="hoenn-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Hoenn </h3> </div> </div>
+        </div>
+
+        <div class="regionbox" id="sinnoh"> 
+            <div id="sinnoh-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Sinnoh </h3> </div> </div>
+        </div>
     </div>
 
-    <div class="regionbox" id="johto"> 
-        <div id="hoenn-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Hoenn </h3> </div> </div> <!-- Placeholder for Johto sprite containers -->
+    <div class="regioncol">
+        <div class="regionbox" id="unova"> 
+            <div id="unova-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Unova </h3> </div> </div>
+        </div>
+
+        <div class="regionbox" id="kalos"> 
+            <div id="kalos-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Kalos </h3> </div> </div>
+        </div>
     </div>
 
-    <div class="regionbox" id="sinnoh"> 
-        <div id="sinnoh-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Sinnoh </h3> </div> </div> <!-- Placeholder for Johto sprite containers -->
+    <div class="regioncol">
+        <div class="regionbox" id="alola"> 
+            <div id="alola-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Alola </h3> </div> </div>
+        </div>
+
+        <div class="regionbox" id="unknown"> 
+            <div id="unknown-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Unknown </h3> </div> </div>
+        </div>
+
+        <div class="regionbox" id="galar"> 
+            <div id="galar-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Galar </h3> </div> </div>
+        </div>
     </div>
 
-    <div class="regionbox" id="unova"> 
-        <div id="unova-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Unova </h3> </div> </div> <!-- Placeholder for Johto sprite containers -->
+    <div class="regioncol">
+        <div class="regionbox" id="hisui"> 
+            <div id="hisui-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Hisui </h3> </div> </div>
+        </div>
+
+        <div class="regionbox" id="paldea"> 
+            <div id="paldea-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Paldea </h3> </div> </div>
+        </div>        
     </div>
 
-    <div class="regionbox" id="kalos"> 
-        <div id="kalos-sprite-container" class="pokemonbox"> <div class="region_title"> <h3> Kalos </h3> </div> </div> <!-- Placeholder for Johto sprite containers -->
-    </div>
 </div>
 
 <script>
@@ -76,12 +139,42 @@
     generateSprites('sinnoh', 387, 493);
     generateSprites('unova', 494, 649);
     generateSprites('kalos', 650, 721);
+    generateSprites('alola', 722, 807);
+    generateSprites('unknown', 808, 809);
+    generateSprites('galar', 810, 898);
+    generateSprites('hisui', 899, 905);
+    generateSprites('paldea', 906, 1025);
 
 </script>
 
 <script>
+
+    function addPokemon(index){
+        guessed_list.push(index)
+
+        const spriteHidden = document.getElementById(`h${index + 1}`);
+        const spriteVisible = document.getElementById(`${index + 1}`);
+        
+        // Toggle display styles
+        if (spriteHidden.style.display === "inline") {
+            spriteHidden.style.display = "none"; // Show the hidden sprite
+            spriteVisible.style.display = "inline"; // Hide the visible sprite
+            inputField.value = ""; // Clear the input
+            
+            num_guessed += 1
+            const number_guessed_indicator = document.getElementById("guessed_counter")
+            number_guessed_indicator.textContent = num_guessed + " / 1025"
+        }
+    };
+
+
     // List of Pokémon names
-    const pokemon_list = ["bulbasaur","ivysaur","venusaur","charmander","charmeleon","charizard","squirtle","wartortle","blastoise","caterpie","metapod","butterfree","weedle","kakuna","beedrill","pidgey","pidgeotto","pidgeot","rattata","raticate","spearow","fearow","ekans","arbok","pikachu","raichu","sandshrew","sandslash","nidoran♀","nidorina","nidoqueen","nidoran♂","nidorino","nidoking","clefairy","clefable","vulpix","ninetales","jigglypuff","wigglytuff","zubat","golbat","oddish","gloom","vileplume","paras","parasect","venonat","venomoth","diglett","dugtrio","meowth","persian","psyduck","golduck","mankey","primeape","growlithe","arcanine","poliwag","poliwhirl","poliwrath","abra","kadabra","alakazam","machop","machoke","machamp","bellsprout","weepinbell","victreebel","tentacool","tentacruel","geodude","graveler","golem","ponyta","rapidash","slowpoke","slowbro","magnemite","magneton","farfetch’d","doduo","dodrio","seel","dewgong","grimer","muk","shellder","cloyster","gastly","haunter","gengar","onix","drowzee","hypno","krabby","kingler","voltorb","electrode","exeggcute","exeggutor","cubone","marowak","hitmonlee","hitmonchan","lickitung","koffing","weezing","rhyhorn","rhydon","chansey","tangela","kangaskhan","horsea","seadra","goldeen","seaking","staryu","starmie","mr. mime","scyther","jynx","electabuzz","magmar","pinsir","tauros","magikarp","gyarados","lapras","ditto","eevee","vaporeon","jolteon","flareon","porygon","omanyte","omastar","kabuto","kabutops","aerodactyl","snorlax","articuno","zapdos","moltres","dratini","dragonair","dragonite","mewtwo","mew","chikorita","bayleef","meganium","cyndaquil","quilava","typhlosion","totodile","croconaw","feraligatr","sentret","furret","hoothoot","noctowl","ledyba","ledian","spinarak","ariados","crobat","chinchou","lanturn","pichu","cleffa","igglybuff","togepi","togetic","natu","xatu","mareep","flaaffy","ampharos","bellossom","marill","azumarill","sudowoodo","politoed","hoppip","skiploom","jumpluff","aipom","sunkern","sunflora","yanma","wooper","quagsire","espeon","umbreon","murkrow","slowking","misdreavus","unown","wobbuffet","girafarig","pineco","forretress","dunsparce","gligar","steelix","snubbull","granbull","qwilfish","scizor","shuckle","heracross","sneasel","teddiursa","ursaring","slugma","magcargo","swinub","piloswine","corsola","remoraid","octillery","delibird","mantine","skarmory","houndour","houndoom","kingdra","phanpy","donphan","porygon2","stantler","smeargle","tyrogue","hitmontop","smoochum","elekid","magby","miltank","blissey","raikou","entei","suicune","larvitar","pupitar","tyranitar","lugia","ho-oh","celebi","treecko","grovyle","sceptile","torchic","combusken","blaziken","mudkip","marshtomp","swampert","poochyena","mightyena","zigzagoon","linoone","wurmple","silcoon","beautifly","cascoon","dustox","lotad","lombre","ludicolo","seedot","nuzleaf","shiftry","taillow","swellow","wingull","pelipper","ralts","kirlia","gardevoir","surskit","masquerain","shroomish","breloom","slakoth","vigoroth","slaking","nincada","ninjask","shedinja","whismur","loudred","exploud","makuhita","hariyama","azurill","nosepass","skitty","delcatty","sableye","mawile","aron","lairon","aggron","meditite","medicham","electrike","manectric","plusle","minun","volbeat","illumise","roselia","gulpin","swalot","carvanha","sharpedo","wailmer","wailord","numel","camerupt","torkoal","spoink","grumpig","spinda","trapinch","vibrava","flygon","cacnea","cacturne","swablu","altaria","zangoose","seviper","lunatone","solrock","barboach","whiscash","corphish","crawdaunt","baltoy","claydol","lileep","cradily","anorith","armaldo","feebas","milotic","castform","kecleon","shuppet","banette","duskull","dusclops","tropius","chimecho","absol","wynaut","snorunt","glalie","spheal","sealeo","walrein","clamperl","huntail","gorebyss","relicanth","luvdisc","bagon","shelgon","salamence","beldum","metang","metagross","regirock","regice","registeel","latias","latios","kyogre","groudon","rayquaza","jirachi","deoxys","turtwig","grotle","torterra","chimchar","monferno","infernape","piplup","prinplup","empoleon","starly","staravia","staraptor","bidoof","bibarel","kricketot","kricketune","shinx","luxio","luxray","budew","roserade","cranidos","rampardos","shieldon","bastiodon","burmy","wormadam","mothim","combee","vespiquen","pachirisu","buizel","floatzel","cherubi","cherrim","shellos","gastrodon","ambipom","drifloon","drifblim","buneary","lopunny","mismagius","honchkrow","glameow","purugly","chingling","stunky","skuntank","bronzor","bronzong","bonsly","mime jr.","happiny","chatot","spiritomb","gible","gabite","garchomp","munchlax","riolu","lucario","hippopotas","hippowdon","skorupi","drapion","croagunk","toxicroak","carnivine","finneon","lumineon","mantyke","snover","abomasnow","weavile","magnezone","lickilicky","rhyperior","tangrowth","electivire","magmortar","togekiss","yanmega","leafeon","glaceon","gliscor","mamoswine","porygon-z","gallade","probopass","dusknoir","froslass","rotom","uxie","mesprit","azelf","dialga","palkia","heatran","regigigas","giratina","cresselia","phione","manaphy","darkrai","shaymin","arceus","victini","snivy","servine","serperior","tepig","pignite","emboar","oshawott","dewott","samurott","patrat","watchog","lillipup","herdier","stoutland","purrloin","liepard","pansage","simisage","pansear","simisear","panpour","simipour","munna","musharna","pidove","tranquill","unfezant","blitzle","zebstrika","roggenrola","boldore","gigalith","woobat","swoobat","drilbur","excadrill","audino","timburr","gurdurr","conkeldurr","tympole","palpitoad","seismitoad","throh","sawk","sewaddle","swadloon","leavanny","venipede","whirlipede","scolipede","cottonee","whimsicott","petilil","lilligant","basculin","sandile","krokorok","krookodile","darumaka","darmanitan","maractus","dwebble","crustle","scraggy","scrafty","sigilyph","yamask","cofagrigus","tirtouga","carracosta","archen","archeops","trubbish","garbodor","zorua","zoroark","minccino","cinccino","gothita","gothorita","gothitelle","solosis","duosion","reuniclus","ducklett","swanna","vanillite","vanillish","vanilluxe","deerling","sawsbuck","emolga","karrablast","escavalier","foongus","amoonguss","frillish","jellicent","alomomola","joltik","galvantula","ferroseed","ferrothorn","klink","klang","klinklang","tynamo","eelektrik","eelektross","elgyem","beheeyem","litwick","lampent","chandelure","axew","fraxure","haxorus","cubchoo","beartic","cryogonal","shelmet","accelgor","stunfisk","mienfoo","mienshao","druddigon","golett","golurk","pawniard","bisharp","bouffalant","rufflet","braviary","vullaby","mandibuzz","heatmor","durant","deino","zweilous","hydreigon","larvesta","volcarona","cobalion","terrakion","virizion","tornadus","thundurus","reshiram","zekrom","landorus","kyurem","keldeo","meloetta","genesect","chespin","quilladin","chesnaught","fennekin","braixen","delphox","froakie","frogadier","greninja","bunnelby","diggersby","fletchling","fletchinder","talonflame","scatterbug","spewpa","vivillon","litleo","pyroar","flabébé","floette","florges","skiddo","gogoat","pancham","pangoro","furfrou","espurr","meowstic","honedge","doublade","aegislash","spritzee","aromatisse","swirlix","slurpuff","inkay","malamar","binacle","barbaracle","skrelp","dragalge","clauncher","clawitzer","helioptile","heliolisk","tyrunt","tyrantrum","amaura","aurorus","sylveon","hawlucha","dedenne","carbink","goomy","sliggoo","goodra","klefki","phantump","trevenant","pumpkaboo","gourgeist","bergmite","avalugg","noibat","noivern","xerneas","yveltal","zygarde","diancie","hoopa","volcanion","rowlet","dartrix","decidueye","litten","torracat","incineroar","popplio","brionne","primarina","pikipek","trumbeak","toucannon","yungoos","gumshoos","grubbin","charjabug","vikavolt","crabrawler","crabominable","oricorio","cutiefly","ribombee","rockruff","lycanroc","wishiwashi","mareanie","toxapex","mudbray","mudsdale","dewpider","araquanid","fomantis","lurantis","morelull","shiinotic","salandit","salazzle","stufful","bewear","bounsweet","steenee","tsareena","comfey","oranguru","passimian","wimpod","golisopod","sandygast","palossand","pyukumuku","type: null","silvally","minior","komala","turtonator","togedemaru","mimikyu","bruxish","drampa","dhelmise","jangmo-o","hakamo-o","kommo-o","tapu koko","tapu lele","tapu bulu","tapu fini","cosmog","cosmoem","solgaleo","lunala","nihilego","buzzwole","pheromosa","xurkitree","celesteela","kartana","guzzlord","necrozma","magearna","marshadow","poipole","naganadel","stakataka","blacephalon","zeraora","meltan","melmetal","grookey","thwackey","rillaboom","scorbunny","raboot","cinderace","sobble","drizzile","inteleon","skwovet","greedent","rookidee","corvisquire","corviknight","blipbug","dottler","orbeetle","nickit","thievul","gossifleur","eldegoss","wooloo","dubwool","chewtle","drednaw","yamper","boltund","rolycoly","carkol","coalossal","applin","flapple","appletun","silicobra","sandaconda","cramorant","arrokuda","barraskewda","toxel","toxtricity","sizzlipede","centiskorch","clobbopus","grapploct","sinistea","polteageist","hatenna","hattrem","hatterene","impidimp","morgrem","grimmsnarl","obstagoon","perrserker","cursola","sirfetch’d","mr. rime","runerigus","milcery","alcremie","falinks","pincurchin","snom","frosmoth","stonjourner","eiscue","indeedee","morpeko","cufant","copperajah","dracozolt","arctozolt","dracovish","arctovish","duraludon","dreepy","drakloak","dragapult","zacian","zamazenta","eternatus","kubfu","urshifu","zarude","regieleki","regidrago","glastrier","spectrier","calyrex","wyrdeer","kleavor","ursaluna","basculegion","sneasler","overqwil","enamorus","sprigatito","floragato","meowscarada","fuecoco","crocalor","skeledirge","quaxly","quaxwell","quaquaval","lechonk","oinkologne","tarountula","spidops","nymble","lokix","pawmi","pawmo","pawmot","tandemaus","maushold","fidough","dachsbun","smoliv","dolliv","arboliva","squawkabilly","nacli","naclstack","garganacl","charcadet","armarouge","ceruledge","tadbulb","bellibolt","wattrel","kilowattrel","maschiff","mabosstiff","shroodle","grafaiai","bramblin","brambleghast","toedscool","toedscruel","klawf","capsakid","scovillain","rellor","rabsca","flittle","espathra","tinkatink","tinkatuff","tinkaton","wiglett","wugtrio","bombirdier","finizen","palafin","varoom","revavroom","cyclizar","orthworm","glimmet","glimmora","greavard","houndstone","flamigo","cetoddle","cetitan","veluza","dondozo","tatsugiri","annihilape","clodsire","farigiraf","dudunsparce","kingambit","great tusk","scream tail","brute bonnet","flutter mane","slither wing","sandy shocks","iron treads","iron bundle","iron hands","iron jugulis","iron moth","iron thorns","frigibax","arctibax","baxcalibur","gimmighoul","gholdengo","wo-chien","chien-pao","ting-lu","chi-yu","roaring moon","iron valiant","koraidon","miraidon","walking wake","iron leaves","dipplin","poltchageist","sinistcha","okidogi","munkidori","fezandipiti","ogerpon","archaludon","hydrapple","gouging fire","raging bolt","iron boulder","iron crown","terapagos","pecharunt",];
+    const pokemon_list = ["bulbasaur","ivysaur","venusaur","charmander","charmeleon","charizard","squirtle","wartortle","blastoise","caterpie","metapod","butterfree","weedle","kakuna","beedrill","pidgey","pidgeotto","pidgeot","rattata","raticate","spearow","fearow","ekans","arbok","pikachu","raichu","sandshrew","sandslash","nidoran♀","nidorina","nidoqueen","nidoran♂","nidorino","nidoking","clefairy","clefable","vulpix","ninetales","jigglypuff","wigglytuff","zubat","golbat","oddish","gloom","vileplume","paras","parasect","venonat","venomoth","diglett","dugtrio","meowth","persian","psyduck","golduck","mankey","primeape","growlithe","arcanine","poliwag","poliwhirl","poliwrath","abra","kadabra","alakazam","machop","machoke","machamp","bellsprout","weepinbell","victreebel","tentacool","tentacruel","geodude","graveler","golem","ponyta","rapidash","slowpoke","slowbro","magnemite","magneton","farfetch’d","doduo","dodrio","seel","dewgong","grimer","muk","shellder","cloyster","gastly","haunter","gengar","onix","drowzee","hypno","krabby","kingler","voltorb","electrode","exeggcute","exeggutor","cubone","marowak","hitmonlee","hitmonchan","lickitung","koffing","weezing","rhyhorn","rhydon","chansey","tangela","kangaskhan","horsea","seadra","goldeen","seaking","staryu","starmie","mr. mime","scyther","jynx","electabuzz","magmar","pinsir","tauros","magikarp","gyarados","lapras","ditto","eevee","vaporeon","jolteon","flareon","porygon","omanyte","omastar","kabuto","kabutops","aerodactyl","snorlax","articuno","zapdos","moltres","dratini","dragonair","dragonite","mewtwo","mew","chikorita","bayleef","meganium","cyndaquil","quilava","typhlosion","totodile","croconaw","feraligatr","sentret","furret","hoothoot","noctowl","ledyba","ledian","spinarak","ariados","crobat","chinchou","lanturn","pichu","cleffa","igglybuff","togepi","togetic","natu","xatu","mareep","flaaffy","ampharos","bellossom","marill","azumarill","sudowoodo","politoed","hoppip","skiploom","jumpluff","aipom","sunkern","sunflora","yanma","wooper","quagsire","espeon","umbreon","murkrow","slowking","misdreavus","unown","wobbuffet","girafarig","pineco","forretress","dunsparce","gligar","steelix","snubbull","granbull","qwilfish","scizor","shuckle","heracross","sneasel","teddiursa","ursaring","slugma","magcargo","swinub","piloswine","corsola","remoraid","octillery","delibird","mantine","skarmory","houndour","houndoom","kingdra","phanpy","donphan","porygon2","stantler","smeargle","tyrogue","hitmontop","smoochum","elekid","magby","miltank","blissey","raikou","entei","suicune","larvitar","pupitar","tyranitar","lugia","ho-oh","celebi","treecko","grovyle","sceptile","torchic","combusken","blaziken","mudkip","marshtomp","swampert","poochyena","mightyena","zigzagoon","linoone","wurmple","silcoon","beautifly","cascoon","dustox","lotad","lombre","ludicolo","seedot","nuzleaf","shiftry","taillow","swellow","wingull","pelipper","ralts","kirlia","gardevoir","surskit","masquerain","shroomish","breloom","slakoth","vigoroth","slaking","nincada","ninjask","shedinja","whismur","loudred","exploud","makuhita","hariyama","azurill","nosepass","skitty","delcatty","sableye","mawile","aron","lairon","aggron","meditite","medicham","electrike","manectric","plusle","minun","volbeat","illumise","roselia","gulpin","swalot","carvanha","sharpedo","wailmer","wailord","numel","camerupt","torkoal","spoink","grumpig","spinda","trapinch","vibrava","flygon","cacnea","cacturne","swablu","altaria","zangoose","seviper","lunatone","solrock","barboach","whiscash","corphish","crawdaunt","baltoy","claydol","lileep","cradily","anorith","armaldo","feebas","milotic","castform","kecleon","shuppet","banette","duskull","dusclops","tropius","chimecho","absol","wynaut","snorunt","glalie","spheal","sealeo","walrein","clamperl","huntail","gorebyss","relicanth","luvdisc","bagon","shelgon","salamence","beldum","metang","metagross","regirock","regice","registeel","latias","latios","kyogre","groudon","rayquaza","jirachi","deoxys","turtwig","grotle","torterra","chimchar","monferno","infernape","piplup","prinplup","empoleon","starly","staravia","staraptor","bidoof","bibarel","kricketot","kricketune","shinx","luxio","luxray","budew","roserade","cranidos","rampardos","shieldon","bastiodon","burmy","wormadam","mothim","combee","vespiquen","pachirisu","buizel","floatzel","cherubi","cherrim","shellos","gastrodon","ambipom","drifloon","drifblim","buneary","lopunny","mismagius","honchkrow","glameow","purugly","chingling","stunky","skuntank","bronzor","bronzong","bonsly","mime jr.","happiny","chatot","spiritomb","gible","gabite","garchomp","munchlax","riolu","lucario","hippopotas","hippowdon","skorupi","drapion","croagunk","toxicroak","carnivine","finneon","lumineon","mantyke","snover","abomasnow","weavile","magnezone","lickilicky","rhyperior","tangrowth","electivire","magmortar","togekiss","yanmega","leafeon","glaceon","gliscor","mamoswine","porygon-z","gallade","probopass","dusknoir","froslass","rotom","uxie","mesprit","azelf","dialga","palkia","heatran","regigigas","giratina","cresselia","phione","manaphy","darkrai","shaymin","arceus","victini","snivy","servine","serperior","tepig","pignite","emboar","oshawott","dewott","samurott","patrat","watchog","lillipup","herdier","stoutland","purrloin","liepard","pansage","simisage","pansear","simisear","panpour","simipour","munna","musharna","pidove","tranquill","unfezant","blitzle","zebstrika","roggenrola","boldore","gigalith","woobat","swoobat","drilbur","excadrill","audino","timburr","gurdurr","conkeldurr","tympole","palpitoad","seismitoad","throh","sawk","sewaddle","swadloon","leavanny","venipede","whirlipede","scolipede","cottonee","whimsicott","petilil","lilligant","basculin","sandile","krokorok","krookodile","darumaka","darmanitan","maractus","dwebble","crustle","scraggy","scrafty","sigilyph","yamask","cofagrigus","tirtouga","carracosta","archen","archeops","trubbish","garbodor","zorua","zoroark","minccino","cinccino","gothita","gothorita","gothitelle","solosis","duosion","reuniclus","ducklett","swanna","vanillite","vanillish","vanilluxe","deerling","sawsbuck","emolga","karrablast","escavalier","foongus","amoonguss","frillish","jellicent","alomomola","joltik","galvantula","ferroseed","ferrothorn","klink","klang","klinklang","tynamo","eelektrik","eelektross","elgyem","beheeyem","litwick","lampent","chandelure","axew","fraxure","haxorus","cubchoo","beartic","cryogonal","shelmet","accelgor","stunfisk","mienfoo","mienshao","druddigon","golett","golurk","pawniard","bisharp","bouffalant","rufflet","braviary","vullaby","mandibuzz","heatmor","durant","deino","zweilous","hydreigon","larvesta","volcarona","cobalion","terrakion","virizion","tornadus","thundurus","reshiram","zekrom","landorus","kyurem","keldeo","meloetta","genesect","chespin","quilladin","chesnaught","fennekin","braixen","delphox","froakie","frogadier","greninja","bunnelby","diggersby","fletchling","fletchinder","talonflame","scatterbug","spewpa","vivillon","litleo","pyroar","flabébé","floette","florges","skiddo","gogoat","pancham","pangoro","furfrou","espurr","meowstic","honedge","doublade","aegislash","spritzee","aromatisse","swirlix","slurpuff","inkay","malamar","binacle","barbaracle","skrelp","dragalge","clauncher","clawitzer","helioptile","heliolisk","tyrunt","tyrantrum","amaura","aurorus","sylveon","hawlucha","dedenne","carbink","goomy","sliggoo","goodra","klefki","phantump","trevenant","pumpkaboo","gourgeist","bergmite","avalugg","noibat","noivern","xerneas","yveltal","zygarde","diancie","hoopa","volcanion","rowlet","dartrix","decidueye","litten","torracat","incineroar","popplio","brionne","primarina","pikipek","trumbeak","toucannon","yungoos","gumshoos","grubbin","charjabug","vikavolt","crabrawler","crabominable","oricorio","cutiefly","ribombee","rockruff","lycanroc","wishiwashi","mareanie","toxapex","mudbray","mudsdale","dewpider","araquanid","fomantis","lurantis","morelull","shiinotic","salandit","salazzle","stufful","bewear","bounsweet","steenee","tsareena","comfey","oranguru","passimian","wimpod","golisopod","sandygast","palossand","pyukumuku","type: null","silvally","minior","komala","turtonator","togedemaru","mimikyu","bruxish","drampa","dhelmise","jangmo-o","hakamo-o","kommo-o","tapu koko","tapu lele","tapu bulu","tapu fini","cosmog","cosmoem","solgaleo","lunala","nihilego","buzzwole","pheromosa","xurkitree","celesteela","kartana","guzzlord","necrozma","magearna","marshadow","poipole","naganadel","stakataka","blacephalon","zeraora","meltan","melmetal","grookey","thwackey","rillaboom","scorbunny","raboot","cinderace","sobble","drizzile","inteleon","skwovet","greedent","rookidee","corvisquire","corviknight","blipbug","dottler","orbeetle","nickit","thievul","gossifleur","eldegoss","wooloo","dubwool","chewtle","drednaw","yamper","boltund","rolycoly","carkol","coalossal","applin","flapple","appletun","silicobra","sandaconda","cramorant","arrokuda","barraskewda","toxel","toxtricity","sizzlipede","centiskorch","clobbopus","grapploct","sinistea","polteageist","hatenna","hattrem","hatterene","impidimp","morgrem","grimmsnarl","obstagoon","perrserker","cursola","sirfetch’d","mr. rime","runerigus","milcery","alcremie","falinks","pincurchin","snom","frosmoth","stonjourner","eiscue","indeedee","morpeko","cufant","copperajah","dracozolt","arctozolt","dracovish","arctovish","duraludon","dreepy","drakloak","dragapult","zacian","zamazenta","eternatus","kubfu","urshifu","zarude","regieleki","regidrago","glastrier","spectrier","calyrex","wyrdeer","kleavor","ursaluna","basculegion","sneasler","overqwil","enamorus","sprigatito","floragato","meowscarada","fuecoco","crocalor","skeledirge","quaxly","quaxwell","quaquaval","lechonk","oinkologne","tarountula","spidops","nymble","lokix","pawmi","pawmo","pawmot","tandemaus","maushold","fidough","dachsbun","smoliv","dolliv","arboliva","squawkabilly","nacli","naclstack","garganacl","charcadet","armarouge","ceruledge","tadbulb","bellibolt","wattrel","kilowattrel","maschiff","mabosstiff","shroodle","grafaiai","bramblin","brambleghast","toedscool","toedscruel","klawf","capsakid","scovillain","rellor","rabsca","flittle","espathra","tinkatink","tinkatuff","tinkaton","wiglett","wugtrio","bombirdier","finizen","palafin","varoom","revavroom","cyclizar","orthworm","glimmet","glimmora","greavard","houndstone","flamigo","cetoddle","cetitan","veluza","dondozo","tatsugiri","annihilape","clodsire","farigiraf","dudunsparce","kingambit","great tusk","scream tail","brute bonnet","flutter mane","slither wing","sandy shocks","iron treads","iron bundle","iron hands","iron jugulis","iron moth","iron thorns","frigibax","arctibax","baxcalibur","gimmighoul","gholdengo","wo-chien","chien-pao","ting-lu","chi-yu","roaring moon","iron valiant","koraidon","miraidon","walking wake","iron leaves","dipplin","poltchageist","sinistcha","okidogi","munkidori","fezandipiti","ogerpon","archaludon","hydrapple","gouging fire","raging bolt","iron boulder","iron crown","terapagos","pecharunt"];
+
+    const guessed_list = [];
+    var num_guessed = 0
+    var timer = ""
+    var progress = "";
 
     // Get the input field
     const inputField = document.querySelector('.input_name');
@@ -96,20 +189,130 @@
 
         // If a match is found, toggle the display of the sprites
         if (index !== -1) {
-            const spriteHidden = document.getElementById(`h${index + 1}`);
-            const spriteVisible = document.getElementById(`${index + 1}`);
-            
-            // Toggle display styles
-            if (spriteHidden.style.display === "inline") {
-                spriteHidden.style.display = "none"; // Show the hidden sprite
-                spriteVisible.style.display = "inline"; // Hide the visible sprite
-                inputField.value = ""; // Clear the input
-            }
-
-            
-
+            addPokemon(index);
         }
     });
+
+    // Function to pad numbers to always have two digits
+    function pad(num) {
+        return num < 10 ? '0' + num : num;
+    }
+
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+
+    function updateTimer() {
+        // Increment the seconds
+        seconds++;
+
+        // If seconds are 60, reset them to 0 and increment minutes
+        if (seconds === 60) {
+            seconds = 0;
+            minutes++;
+        }
+
+        // If minutes are 60, reset them to 0 and increment hours
+        if (minutes === 60) {
+            minutes = 0;
+            hours++;
+        }
+
+        // Format time as HH:MM:SS and update the HTML element
+        timer = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+        document.getElementById("timer").textContent = timer;
+    }
+
+    // Run the updateTimer function every second (1000 ms)
+    let timer_interval;
+    timer_interval = setInterval(updateTimer, 1000);
+
+    // Save button functionality
+    document.querySelector('#save_button').addEventListener('click', function() {
+        clearInterval(timer_interval)
+        document.querySelector('#save_popup').style.display = 'block';
+
+        if (guessed_list.length > 0){
+            progress = `[${hours}, ${minutes}, ${seconds},${guessed_list.toString()}]`;
+        }
+        else {
+            progress = `[${hours}, ${minutes}, ${seconds}]`;
+        }
+
+        document.getElementById("progress_string").textContent = progress;
+    });
+
+    // Copy button functionality
+    document.querySelector('#copy').addEventListener('click', function() {
+        navigator.clipboard.writeText(progress)
+    });
+
+    // Paste button functionality
+    document.querySelector('#paste').addEventListener('click', function() {
+        console.log(navigator.clipboard.readText());
+
+        async function setClipboardContentToInput() {
+            try {
+            // Check if clipboard access is available
+            const clipboardText = await navigator.clipboard.readText();
+            
+            // Set the clipboard content to the input field
+            document.getElementById('input_progress').value = clipboardText;
+            } catch (err) {
+            console.error('Failed to read clipboard content:', err);
+            }
+        }
+
+        // Call the function to set the input field value with clipboard content
+        setClipboardContentToInput();
+    });
+
+    // Load button functionality
+    document.querySelector('#load_button').addEventListener('click', function() {
+        clearInterval(timer_interval)
+        document.querySelector('#load_popup').style.display = 'block';
+    });
+
+    // Load confirm press
+    document.querySelector('#load_confirm').addEventListener('click', function() {
+        const progress = document.querySelector('#input_progress').value;
+        console.log(progress);
+
+        var progress_list = JSON.parse(progress);
+
+        console.log(progress_list);
+
+        if (progress_list.length > 0){
+            hours = progress_list[0];
+            minutes = progress_list[1];
+            seconds = progress_list[2];
+            updateTimer()
+        }
+
+        if (progress_list.length > 3){
+            for (let i = 2; i < progress_list.length; i++) {
+                addPokemon(progress_list[i]);
+            }
+        }
+    });
+
+    // Hide specific popup when its background is clicked
+    document.querySelector('#save_popup').addEventListener('click', function(e) {
+        if (e.target === this) { // Check if clicked outside the pop-up box
+            document.querySelector('#save_popup').style.display = 'none';
+            clearInterval(timer_interval);
+            timer_interval = setInterval(updateTimer, 1000);
+        }
+    });
+
+    document.querySelector('#load_popup').addEventListener('click', function(e) {
+        if (e.target === this) { // Check if clicked outside the pop-up box
+            document.querySelector('#load_popup').style.display = 'none';
+            clearInterval(timer_interval);
+            timer_interval = setInterval(updateTimer, 1000);
+        }
+    });
+    
 </script>
 
 {% endblock %}
