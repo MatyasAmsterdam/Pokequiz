@@ -3,6 +3,7 @@ import os
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
+from flask_socketio import SocketIO, send
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -15,6 +16,11 @@ from helpers import apology, login_required
 
 # Configure application
 app = Flask(__name__)
+app.secret_key = 'fix dit later'
+
+# Initialize Flask-SocketIO
+socketio = SocketIO(app)
+
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -180,7 +186,11 @@ def quiz():
         return render_template("quiz.html")
     
 
+@socketio.on('message')
+def message(data):
+    print(f"MESSAGE SOCKETIO: {data}")
 
+    send(data)
 
 def errorhandler(e):
     """Handle error"""
@@ -194,3 +204,6 @@ for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
 
+
+if __name__ == "__main__":
+    socketio.run(app, debug=True)
