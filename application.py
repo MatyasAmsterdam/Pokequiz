@@ -3,7 +3,7 @@ import os
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
-from flask_socketio import SocketIO, send
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -188,9 +188,33 @@ def quiz():
 
 @socketio.on('message')
 def message(data):
+    
     print(f"MESSAGE SOCKETIO: {data}")
 
     send(data)
+    emit('some-event', data)
+
+
+@socketio.on('join')
+def join(data):
+    print(f"User {data['display_name']} has joined room room {data['room']}")
+    join_room(data['room'])
+
+
+@socketio.on('leave')
+def leave(data):
+    leave_room(data['room'])
+
+
+@socketio.on('add_pokemon')
+def add_pokemon(data):
+    dex_id = data['dex_id']
+    room = data['room']
+    user = data['display_name']
+
+    print(f"User {user} added Pokémon {dex_id} to room {room}")
+
+    emit('pokemon_added', {'dex_id': dex_id, 'user': user}, room=room)
 
 def errorhandler(e):
     """Handle error"""
@@ -202,7 +226,6 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
-
 
 
 if __name__ == "__main__":

@@ -50,11 +50,19 @@
     <div id="pop_up_box">
         <div class="popupCloseButton">&times;</div>
 
-        <div id="enter_name">
-            <h4>Please enter your display name and press "Start Room</h4>
+        <div id="host_join">
+            <h4>Would you like to host a game or join an existing game?</h4>
+            <div id="host_join_button_div">
+                <div class="button loadsave_button" id="host_game"> <h4>Host</h4> </div>
+                <div class="button loadsave_button" id="join_game"> <h4>Join</h4> </div>
+            </div>
+        </div>
+
+        <div id="enter_name" style="display: none;">
+            <h4>Please enter your display name and press "Start</h4>
             <h6 id="input_display_warning" style="color: red; display: none;">Please enter a valid display name</h6>
             <input type="text" id="input_display_name" maxlength="12" autocomplete="off" style="display: block;">
-            <div class="button loadsave_button" id="room_confirm"> <h4>Start Room</h4> </div>
+            <div class="button loadsave_button" id="room_confirm"> <h4>Start</h4> </div>
         </div>
     
         <div id="finish_room" style="display: none;"> 
@@ -62,6 +70,13 @@
             <h3 id="room_id">Room ID</h3>
             <img id="copy_room_id" class="copy_paste button" src="/static/copy_icon.svg">
             <p id="progress_string"></p>
+        </div>
+
+        <div id="join" style="display: none;">
+            <h4>Please enter a lobby ID</h4>
+            <h6 id="input_room_warning" style="color: red; display: none;">Please enter a valid lobby id</h6>
+            <input type="text" id="input_room_id" maxlength="8" autocomplete="off" style="display: block;">
+            <div class="button loadsave_button" id="join_room_confirm"> <h4>Join room</h4> </div>
         </div>
     </div>
 </div>
@@ -124,7 +139,59 @@
 
 </div>
 
+<!-- SocketIO JS-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+
+<!-- Custom SocketIO JS-->
+<!-- <script src="../static/scripts/socketio.js"></script> -->
+
+
 <script>
+
+    var socket = io();
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Send confirmation of connection
+        socket.on('connect', function() {
+            socket.send("I am connected!")
+            //socket.emit('my event', {data: 'I\'m connected!'});
+
+        });
+
+        socket.on('message', data => {
+            console.log(`Message receifed: ${data}`)
+        })
+
+        socket.on('some-event', data => {
+            console.log(`Some event received: ${data}`)
+
+        })
+
+        socket.on('pokemon_added', data => {
+            const dex_id = data.dex_id
+            const username = data.user
+
+            console.log(`User ${username} added ${dex_id}`)
+
+            if (guessed_list.includes(dex_id) === false){
+                addPokemon(dex_id, user = username)
+            }
+        })
+
+        window.joinRoom = function(room) {
+            console.log(room);
+            socket.emit('join', {'display_name': display_name, 'room': room});
+        }
+    });
+
+
+
+    var display_name = "Nameless User";
+
+
+    // ------------------------------------------------------//
+
     // JavaScript to generate sprite containers for each region
     function generateSprites(region, startId, endId) {
         const spriteContainerWrapper = document.getElementById(region + '-sprite-container');
@@ -170,12 +237,15 @@
     generateSprites('hisui', 899, 905);
     generateSprites('paldea', 906, 1025);
 
-</script>
+    function addPokemon(index, user = display_name){
 
-<script>
+        guessed_list.push(index);
 
-    function addPokemon(index){
-        guessed_list.push(index)
+        console.log(multiplayer)
+
+        if (multiplayer === true && user === display_name){
+            socket.emit('add_pokemon', {'display_name': display_name, 'dex_id': index, 'room': room_id});
+        }
 
         const spriteHidden = document.getElementById(`h${index + 1}`);
         const spriteVisible = document.getElementById(`${index + 1}`);
@@ -204,7 +274,8 @@
     var num_guessed = 0
     var timer = ""
     var progress = "";
-    const room_id = generate_room_id();
+    var room_id = generate_room_id();
+    var multiplayer = false;
 
     // Get the input field
     const inputField = document.querySelector('.input_name');
@@ -218,7 +289,7 @@
         const index = pokemon_list.indexOf(inputValue);
 
         // If a match is found, toggle the display of the sprites
-        if (index !== -1) {
+        if (index !== -1 && guessed_list.includes(index) === false) {
             addPokemon(index);
         }
     });
@@ -356,26 +427,58 @@
     document.querySelector('#multiplayer_button').addEventListener('click', function() {
         clearInterval(timer_interval);
         document.querySelector('#multiplayer_popup').style.display = 'block';
-        document.getElementById("room_id").textContent = room_id;
+    });
+
+    // Host functionality
+    document.querySelector('#host_game').addEventListener('click', function() {
+        document.querySelector('#host_join').style.display = 'none';
+        document.querySelector('#enter_name').style.display = 'block';
+    });
+
+    // Join functionality
+    document.querySelector('#join_game').addEventListener('click', function() {
+        document.querySelector('#host_join').style.display = 'none';
+        document.querySelector('#join').style.display = 'block';
+    });
+
+    document.querySelector('#join_room_confirm').addEventListener('click', function() {
+        join_room_id = document.getElementById("input_room_id").value;
+
+        if (join_room_id.length < 6){
+            document.getElementById("input_room_warning").style.display = 'block';
+        }
+        else{
+            room_id = join_room_id
+            document.querySelector('#join').style.display = 'none';
+            document.querySelector('#enter_name').style.display = 'block';
+        }
     });
 
     // Copy room id button functionality
     document.querySelector('#copy_room_id').addEventListener('click', function() {
-        navigator.clipboard.writeText(room_id)
+        navigator.clipboard.writeText(room_id);
     });
 
     // Start room button functionality
     document.querySelector('#room_confirm').addEventListener('click', function() {
-        const display_name = document.getElementById("input_display_name").value;
-        console.log(display_name)
+        display_name = document.getElementById("input_display_name").value;
+        console.log(display_name);
+        console.log("Room confirmed")
 
         if (display_name.length < 1){
             document.getElementById("input_display_warning").style.display = 'block';
         }
         else{
+            multiplayer = true;
             document.querySelector('#enter_name').style.display = 'none';
             document.querySelector('#finish_room').style.display = 'block';
             document.getElementById("room_id").textContent = room_id;
+
+            if (typeof room_id === 'number'){
+                room_id = room_id.toString()
+            }
+
+            joinRoom(room_id)
         }
     });
     

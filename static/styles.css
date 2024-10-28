@@ -218,6 +218,28 @@ nav .navbar-brand .green
     margin-top: 10%;
 }
 
+#host_join_button_div{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+#host_game{
+    width: 40%;
+    margin-top: 10%;
+}
+
+#join_game{
+    width: 40%;
+    margin-top: 10%;
+}
+
+#join_room_confirm{
+    width: 40%;
+    margin-top: 10%;
+    background-color: #68de88;
+}
+
 .copy_paste{
     margin-top: 5%;
     width: 15%;
@@ -249,6 +271,12 @@ nav .navbar-brand .green
 }
 
 #input_display_name{
+    margin-top: 10%;
+    margin-left: 25%;
+    width: 50%;
+}
+
+#input_room_id{
     margin-top: 10%;
     margin-left: 25%;
     width: 50%;
