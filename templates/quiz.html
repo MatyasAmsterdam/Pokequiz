@@ -15,6 +15,9 @@
         <div class="button loadsave_button" id="load_button"> <h4> Load</h4> </div>
     </div>
     <div class="button loadsave_button" id="multiplayer_button"> <h4> Multiplayer</h4> </div>
+</div>
+
+<div id="player_list">
 
 </div>
 
@@ -163,11 +166,6 @@
             console.log(`Message receifed: ${data}`)
         })
 
-        socket.on('some-event', data => {
-            console.log(`Some event received: ${data}`)
-
-        })
-
         socket.on('pokemon_added', data => {
             const dex_id = data.dex_id
             const username = data.user
@@ -179,10 +177,26 @@
             }
         })
 
+        window.createRoom = function(room) {
+            socket.emit('create_room', {'display_name': display_name, 'room': room})
+        }
+
         window.joinRoom = function(room) {
             console.log(room);
             socket.emit('join', {'display_name': display_name, 'room': room});
         }
+
+        socket.on('room_users', data =>{
+            const user_list = data.users
+            console.log(user_list)
+        })
+
+        socket.on('player_joined', data => {
+            const username = data.user
+            const room = data.room
+            console.log(`User ${username} has joined room ${room}`)
+            console.log(`Current player list: ${players}`)
+        })
     });
 
 
@@ -212,8 +226,10 @@
             const visibleSprite = document.createElement('img');
             visibleSprite.classList.add('sprite');
             visibleSprite.id = `${i}`;
+            visibleSprite.loading = 'lazy';
             visibleSprite.src = `../static/pokemon/${i}.png`;
             visibleSprite.style.display = 'none';
+        
 
             // Append images to the sprite container
             spriteContainer.appendChild(hiddenSprite);
@@ -276,6 +292,7 @@
     var progress = "";
     var room_id = generate_room_id();
     var multiplayer = false;
+    var host = false;
 
     // Get the input field
     const inputField = document.querySelector('.input_name');
@@ -324,13 +341,28 @@
         document.getElementById("timer").textContent = timer;
     }
 
+
     // Run the updateTimer function every second (1000 ms)
     let timer_interval;
     timer_interval = setInterval(updateTimer, 1000);
 
+
+    function pause_timer(){
+        if (multiplayer === false){
+            clearInterval(timer_interval);
+        }     
+    }
+
+    function resume_timer(){
+        if (multiplayer === false){
+            clearInterval(timer_interval);
+            timer_interval = setInterval(updateTimer, 1000);
+        }     
+    }
+
     // Save button functionality
     document.querySelector('#save_button').addEventListener('click', function() {
-        clearInterval(timer_interval)
+        pause_timer()
         document.querySelector('#save_popup').style.display = 'block';
 
         if (guessed_list.length > 0){
@@ -370,7 +402,7 @@
 
     // Load button functionality
     document.querySelector('#load_button').addEventListener('click', function() {
-        clearInterval(timer_interval)
+        pause_timer()
         document.querySelector('#load_popup').style.display = 'block';
     });
 
@@ -401,31 +433,28 @@
     document.querySelector('#save_popup').addEventListener('click', function(e) {
         if (e.target === this) { // Check if clicked outside the pop-up box
             document.querySelector('#save_popup').style.display = 'none';
-            clearInterval(timer_interval);
-            timer_interval = setInterval(updateTimer, 1000);
+            resume_timer()
         }
     });
 
     document.querySelector('#load_popup').addEventListener('click', function(e) {
         if (e.target === this) { // Check if clicked outside the pop-up box
             document.querySelector('#load_popup').style.display = 'none';
-            clearInterval(timer_interval);
-            timer_interval = setInterval(updateTimer, 1000);
+            resume_timer()
         }
     });
 
     document.querySelector('#multiplayer_popup').addEventListener('click', function(e) {
         if (e.target === this) { // Check if clicked outside the pop-up box
             document.querySelector('#multiplayer_popup').style.display = 'none';
-            clearInterval(timer_interval);
-            timer_interval = setInterval(updateTimer, 1000);
+            resume_timer()
         }
     });
 
 
     // Multiplayer button functionality
     document.querySelector('#multiplayer_button').addEventListener('click', function() {
-        clearInterval(timer_interval);
+        pause_timer()
         document.querySelector('#multiplayer_popup').style.display = 'block';
     });
 
@@ -433,6 +462,7 @@
     document.querySelector('#host_game').addEventListener('click', function() {
         document.querySelector('#host_join').style.display = 'none';
         document.querySelector('#enter_name').style.display = 'block';
+        host = true
     });
 
     // Join functionality
@@ -448,7 +478,7 @@
             document.getElementById("input_room_warning").style.display = 'block';
         }
         else{
-            room_id = join_room_id
+            room_id = join_room_id;
             document.querySelector('#join').style.display = 'none';
             document.querySelector('#enter_name').style.display = 'block';
         }
@@ -463,22 +493,34 @@
     document.querySelector('#room_confirm').addEventListener('click', function() {
         display_name = document.getElementById("input_display_name").value;
         console.log(display_name);
-        console.log("Room confirmed")
+        console.log("Room confirmed");
 
         if (display_name.length < 1){
             document.getElementById("input_display_warning").style.display = 'block';
         }
         else{
-            multiplayer = true;
             document.querySelector('#enter_name').style.display = 'none';
             document.querySelector('#finish_room').style.display = 'block';
             document.getElementById("room_id").textContent = room_id;
 
             if (typeof room_id === 'number'){
-                room_id = room_id.toString()
+                room_id = room_id.toString();
             }
 
-            joinRoom(room_id)
+            resume_timer();
+            multiplayer = true;
+
+            if (host === true){
+                createRoom(room_id);
+            }
+            else {
+                joinRoom(room_id);
+            }
+
+            document.getElementById("load_button").style.display = 'none';
+
+            socket.emit('get_room_users', {'room': room_id})
+            //console.log(io.sockets.adapter.rooms.get('Room Name'));
         }
     });
     

@@ -3,7 +3,7 @@ import os
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
-from flask_socketio import SocketIO, send, emit, join_room, leave_room
+from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -20,6 +20,8 @@ app.secret_key = 'fix dit later'
 
 # Initialize Flask-SocketIO
 socketio = SocketIO(app)
+
+room_list = {}
 
 
 # Ensure templates are auto-reloaded
@@ -43,6 +45,7 @@ Session(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///pokequiz.db")
 
+connected_users = {}
 
 @app.route("/")
 def index():
@@ -194,16 +197,42 @@ def message(data):
     send(data)
     emit('some-event', data)
 
+@socketio.on('create_room')
+def create_room(data):
+    room = data['room']
+    display_name = data['display_name']
+    room_list[room] = [display_name]
+
+    print(f"User {data['display_name']} has joined room room {data['room']}")
+    print(f"Users in room: {room_list[room]}")
+
+    join_room(data['room'])
+
 
 @socketio.on('join')
 def join(data):
+
+    room = data['room']
+    display_name = data['display_name']
+
+    if room in room_list.keys():
+        room_list[room].append(display_name)
+    
     print(f"User {data['display_name']} has joined room room {data['room']}")
+    print(f"Users in room: {room_list[room]}")
+
     join_room(data['room'])
 
 
 @socketio.on('leave')
 def leave(data):
     leave_room(data['room'])
+
+@socketio.on('get_room_users')
+def get_room_users(data):
+    room = data['room']
+    room_users = room_list[room]
+    socketio.emit('room_users', {'room': room, 'users': room_users}, room=request.sid)
 
 
 @socketio.on('add_pokemon')
