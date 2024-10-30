@@ -285,3 +285,18 @@ nav .navbar-brand .green
 #input_display_warning{
     margin-top: 5%;
 }
+
+#player_list{
+    justify-content: flex-start;
+    display: flex;
+    width: 97vw;
+    padding-right: 20px;
+}
+
+.player_card{
+    border: 3px solid;
+    width: 10%;
+    background-color: #dedcdc;
+    text-align: center;
+    margin-left: 2%;
+}

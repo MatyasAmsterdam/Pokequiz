@@ -22,6 +22,7 @@ app.secret_key = 'fix dit later'
 socketio = SocketIO(app)
 
 room_list = {}
+room_scores = {}
 
 
 # Ensure templates are auto-reloaded
@@ -202,11 +203,13 @@ def create_room(data):
     room = data['room']
     display_name = data['display_name']
     room_list[room] = [display_name]
+    room_scores[room] = {display_name: 0}
 
     print(f"User {data['display_name']} has joined room room {data['room']}")
     print(f"Users in room: {room_list[room]}")
 
     join_room(data['room'])
+    socketio.emit('room_created', {'room': room, 'user': display_name, 'scores': room_scores[room]}, room=room)
 
 
 @socketio.on('join')
@@ -217,11 +220,13 @@ def join(data):
 
     if room in room_list.keys():
         room_list[room].append(display_name)
+        room_scores[room][display_name] = 0
     
     print(f"User {data['display_name']} has joined room room {data['room']}")
     print(f"Users in room: {room_list[room]}")
 
     join_room(data['room'])
+    socketio.emit('player_joined', {'room': room, 'user': display_name, 'scores': room_scores[room]}, room=room)
 
 
 @socketio.on('leave')
@@ -240,10 +245,11 @@ def add_pokemon(data):
     dex_id = data['dex_id']
     room = data['room']
     user = data['display_name']
+    room_scores[room][user] += 1
 
     print(f"User {user} added Pokémon {dex_id} to room {room}")
+    emit('pokemon_added', {'dex_id': dex_id, 'user': user, 'scores': room_scores[room]}, room=room)
 
-    emit('pokemon_added', {'dex_id': dex_id, 'user': user}, room=room)
 
 def errorhandler(e):
     """Handle error"""
