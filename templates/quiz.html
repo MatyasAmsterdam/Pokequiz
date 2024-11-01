@@ -296,7 +296,10 @@
         if (spriteHidden.style.display === "inline") {
             spriteHidden.style.display = "none"; // Show the hidden sprite
             spriteVisible.style.display = "inline"; // Hide the visible sprite
-            inputField.value = ""; // Clear the input
+
+            if (user === display_name){
+                inputField.value = ""; // Clear the input
+            }
             
             num_guessed += 1
             const number_guessed_indicator = document.getElementById("guessed_counter")
