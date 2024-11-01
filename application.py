@@ -23,6 +23,7 @@ socketio = SocketIO(app)
 
 room_list = {}
 room_scores = {}
+room_progress = {}
 
 
 # Ensure templates are auto-reloaded
@@ -204,6 +205,7 @@ def create_room(data):
     display_name = data['display_name']
     room_list[room] = [display_name]
     room_scores[room] = {display_name: 0}
+    room_progress[room] = data['room_progress']
 
     print(f"User {data['display_name']} has joined room room {data['room']}")
     print(f"Users in room: {room_list[room]}")
@@ -227,17 +229,19 @@ def join(data):
 
     join_room(data['room'])
     socketio.emit('player_joined', {'room': room, 'user': display_name, 'scores': room_scores[room]}, room=room)
+    socketio.emit('room_joined', {})
 
 
 @socketio.on('leave')
 def leave(data):
     leave_room(data['room'])
 
-@socketio.on('get_room_users')
+@socketio.on('get_room_data')
 def get_room_users(data):
     room = data['room']
     room_users = room_list[room]
-    socketio.emit('room_users', {'room': room, 'users': room_users}, room=request.sid)
+    progress = room_progress[room]
+    socketio.emit('room_data', {'room': room, 'users': room_users, 'room_progress': progress}, room=request.sid)
 
 
 @socketio.on('add_pokemon')
@@ -246,6 +250,7 @@ def add_pokemon(data):
     room = data['room']
     user = data['display_name']
     room_scores[room][user] += 1
+    room_progress[room].append(dex_id)
 
     print(f"User {user} added Pokémon {dex_id} to room {room}")
     emit('pokemon_added', {'dex_id': dex_id, 'user': user, 'scores': room_scores[room]}, room=room)
