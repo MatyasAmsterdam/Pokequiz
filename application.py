@@ -252,8 +252,23 @@ def add_pokemon(data):
     room_scores[room][user] += 1
     room_progress[room].append(dex_id)
 
-    print(f"User {user} added Pokémon {dex_id} to room {room}")
     emit('pokemon_added', {'dex_id': dex_id, 'user': user, 'scores': room_scores[room]}, room=room)
+
+
+@socketio.on("sync_timers_request")
+def sync_timers_request(data):
+    room = data['room']
+    emit('timers_sync_request', {'room': room, 'host_name': room_list[room][0]}, room=room)
+
+@socketio.on("sync_timers")
+def sync_timers(data):
+    print(data)
+    room = data['room']
+    hours = data['hours']
+    minutes = data['minutes']
+    seconds = data['seconds']
+    
+    emit('timers_synced', {'hours': hours, 'minutes': minutes, 'seconds': seconds}, room=room)
 
 
 def errorhandler(e):

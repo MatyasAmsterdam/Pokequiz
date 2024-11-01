@@ -150,7 +150,9 @@
 <script>
 
     var socket = io();
-
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
     var display_name = "Nameless User";
     const guessed_list = [];
     var num_guessed = 0
@@ -161,13 +163,13 @@
     var players = [];
     var scores;
     const playerListContainer = document.getElementById("player_list");
-    const colour_sequence = ['#ea546b', '#c0ffee', '#bce754', '#fec601', '#ed0c6e', '#3da5d9', '#e7da26', '#ea7317', '#f0bbcd']
+    const colour_sequence = ['#ea546b', '#c0ffee', '#bce754', '#fec601', '#ed0c6e', '#3da5d9', '#e7da26', '#ea7317', '#f0bbcd'];
 
     document.addEventListener('DOMContentLoaded', () => {
 
         // Send confirmation of connection
         socket.on('connect', function() {
-            socket.send("I am connected!")
+            socket.send("I am connected!");
             //socket.emit('my event', {data: 'I\'m connected!'});
 
         });
@@ -181,17 +183,17 @@
             const username = data.user;
             scores = data.scores;
 
-            console.log(`User ${username} added ${dex_id}`)
+            console.log(`User ${username} added ${dex_id}`);
 
             if (guessed_list.includes(dex_id) === false){
-                addPokemon(dex_id, user = username)
+                addPokemon(dex_id, user = username);
             }
 
             generatePlayerDisplay(scores);
         })
 
         window.createRoom = function(room) {
-            socket.emit('create_room', {'display_name': display_name, 'room': room, 'room_progress': guessed_list})
+            socket.emit('create_room', {'display_name': display_name, 'room': room, 'room_progress': guessed_list});
         }
 
         window.joinRoom = function(room) {
@@ -218,7 +220,7 @@
 
             console.log(`User ${user} has joined room ${room}`);
             console.log(`Current player list: ${players}`);
-            generatePlayerDisplay(scores)
+            generatePlayerDisplay(scores);
         })
 
         socket.on('player_joined', data => {
@@ -228,9 +230,28 @@
 
             console.log(`User ${user} has joined room ${room}`);
             console.log(`Current player list: ${players}`);
-            console.log(`Scores: ${scores}`)
+            console.log(`Scores: ${scores}`);
 
-            generatePlayerDisplay(scores)
+            generatePlayerDisplay(scores);
+        })
+
+        socket.on('timers_sync_request', data => {
+            const host_name = data.host_name;
+            const room = data.room;
+
+            console.log(host_name)
+            console.log(host)
+
+            if (display_name === host_name && host === true) {
+                socket.emit('sync_timers', {'room': room, 'hours': hours, 'minutes': minutes, 'seconds': seconds});
+            }
+        })
+
+        socket.on('timers_synced', data => {
+            hours = data.hours;
+            minutes = data.minutes;
+            seconds = data.seconds;
+            updateTimer()
         })
     });
 
@@ -249,6 +270,7 @@
             // Create the hidden sprite image
             const hiddenSprite = document.createElement('img');
             hiddenSprite.classList.add('sprite');
+            hiddenSprite.classList.add('hidden_sprite');
             hiddenSprite.id = `h${i}`;
             hiddenSprite.src = '../static/hidden.png';
             hiddenSprite.style.display = 'inline';
@@ -256,6 +278,7 @@
             // Create the visible sprite image
             const visibleSprite = document.createElement('img');
             visibleSprite.classList.add('sprite');
+            visibleSprite.classList.add('show_sprite');
             visibleSprite.id = `${i}`;
             visibleSprite.loading = 'lazy';
             visibleSprite.src = `../static/pokemon/${i}.png`;
@@ -284,11 +307,12 @@
     generateSprites('hisui', 899, 905);
     generateSprites('paldea', 906, 1025);
 
+
     function addPokemon(index, user = display_name){
 
         guessed_list.push(index);
 
-        console.log(multiplayer)
+        console.log(multiplayer);
 
         // If guessed by self in mp, add guess to other players
         if (multiplayer === true && user === display_name){
@@ -307,9 +331,9 @@
                 inputField.value = ""; // Clear the input
             }
             
-            num_guessed += 1
-            const number_guessed_indicator = document.getElementById("guessed_counter")
-            number_guessed_indicator.textContent = num_guessed + " / 1025"
+            num_guessed += 1;
+            const number_guessed_indicator = document.getElementById("guessed_counter");
+            number_guessed_indicator.textContent = num_guessed + " / 1025";
         }
     };
 
@@ -320,7 +344,7 @@
     // Generate a score display for the player
     function generatePlayerDisplay(scores){
         playerListContainer.innerHTML = "";
-        var colour_index = 0
+        var colour_index = 0;
 
         for (const [username, score] of Object.entries(scores)) {
             const playerDiv = document.createElement("div");
@@ -328,18 +352,18 @@
             playerDiv.classList.add("player_card");
             playerDiv.style.backgroundColor = colour_sequence[colour_index];
             playerListContainer.appendChild(playerDiv);
-            colour_index += 1
+            colour_index += 1;
 
             if (colour_index == 9){
-                colour_index = 0
+                colour_index = 0;
             }
         }
     }
 
     function resetGame() {
         // Select all hidden and visible sprites based on their class names or ID prefixes
-        const hiddenSprites = document.querySelectorAll('img[id^="h"]');
-        const visibleSprites = document.querySelectorAll('img[id]:not([id^="h"])');
+        const hiddenSprites = document.querySelectorAll('.hidden_sprite');
+        const visibleSprites = document.querySelectorAll('.show_sprite');
 
         // Hide all visible sprites
         visibleSprites.forEach(sprite => {
@@ -349,11 +373,16 @@
         // Show all hidden sprites
         hiddenSprites.forEach(sprite => {
             sprite.style.display = 'inline';
+        });
 
-        num_guessed = 0
-        const number_guessed_indicator = document.getElementById("guessed_counter")
-        number_guessed_indicator.textContent = num_guessed + " / 1025"
-    });
+        num_guessed = 0;
+        const number_guessed_indicator = document.getElementById("guessed_counter");
+        number_guessed_indicator.textContent = num_guessed + " / 1025";
+
+        hours = 0;
+        minutes = 0;
+        seconds = 0;
+        updateTimer();
 }
 
     // List of Pokémon names
@@ -382,10 +411,6 @@
     function pad(num) {
         return num < 10 ? '0' + num : num;
     }
-
-    let hours = 0;
-    let minutes = 0;
-    let seconds = 0;
 
     function updateTimer() {
         // Increment the seconds
@@ -581,9 +606,13 @@
                 createRoom(room_id, pokemon_list);
             }
             else {
+                resetGame()
                 joinRoom(room_id);
                 console.log(scores)
+
+                // Load room progress and sync timers
                 socket.emit('get_room_data', {'room': room_id})
+                socket.emit('sync_timers_request', {'room': room_id})
             }
 
             document.getElementById("load_button").style.display = 'none';
