@@ -309,37 +309,57 @@ nav .navbar-brand .green
 /* Responsive adjustments */
 @media (max-width: 768px) { /* Target screens narrower than 768px */
 
+    body {
+        margin: 0; /* Remove default body margin */
+    }
+        
     /* Navbar brand font size for mobile */
     nav .navbar-brand {
         font-size: large;
     }
-
-
+    
     /* Adjust button sizes for mobile */
     .button {
         width: 150px; /* Reduce width */
         height: 150px; /* Reduce height */
     }
-
+    
     /* Container padding adjustment */
     .container.p-3 {
         padding: 10px; /* Add some padding for small screens */
+    }
+    
+    nav {
+        position: sticky;
+        top: 0; /* Ensure navbar starts at the top */
+        left: 0;
+        right: 0; /* Full width */
+        z-index: 1000; /* Set a high z-index to ensure it is above other elements */
     }
 
     /* Make #top-bar vertical on mobile */
     #top-bar {
         display: grid;
-        justify-content: space-between; /* Distributes items in each row */
+        justify-content: space-between;
         align-items: center;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* Creates two equal-width columns */
-        grid-template-rows: auto auto auto; /* Three rows for layout */
-        gap: 10px; /* Optional spacing between items */
-        padding: 0;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 10px;
+        padding: 10px;
         width: 100%;
+        position: sticky; /* Keep fixed */
+        top: 0%; /* Adjust top to be below the navbar */
+        left: 0;
+        background-color: #ffffff;
+        z-index: 999; /* Slightly lower than navbar */
+        grid-template-areas: 
+            "loadsave_button multiplayer_button"
+            "guessed_counter timer"
+            "input_name input_name";
     }
 
     /* Input field adjustments */
     .input_name {
+        grid-area: input_name;
         display: block;
         grid-column: span 2;
         width: 100%;
@@ -349,6 +369,7 @@ nav .navbar-brand .green
     }
 
     #guessed_counter{
+        grid-area: guessed_counter;
         grid-column: span 1;
         margin: 0;
         text-align: center;
@@ -356,6 +377,7 @@ nav .navbar-brand .green
     }
 
     #timer{
+        grid-area: timer;
         grid-column: span 1;
         margin: 0;
         text-align: center;
@@ -363,10 +385,12 @@ nav .navbar-brand .green
     }
 
     #multiplayer_button{
+        grid-area: multiplayer_button;
         width: 100%;
     }
 
     #loadsave_div{
+        grid-area: loadsave_button;
         width: 100%;
         gap: 5%;
     }
