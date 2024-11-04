@@ -54,6 +54,7 @@ nav .navbar-brand .green
     padding-right: 20px;
 }
 
+
 /* Input outside the regionbox */
 .input_name {
     display: block;
@@ -69,11 +70,6 @@ nav .navbar-brand .green
     margin-left: 10%;
 }
 
-#timer_box{
-    width: 100px;
-    text-align: center;
-}
-
 #loadsave_div{
     width: 10%;
     height: 100%;
@@ -82,15 +78,18 @@ nav .navbar-brand .green
 }
 
 #save_button{
-    width: 40%;
+    padding-left: 5%;
+    padding-right: 5%;
 }
 
 #load_button{
-    width: 40%;
+    padding-left: 5%;
+    padding-right: 5%;
 }
 
 #multiplayer_button{
-    width: 10%;
+    padding-left: 1%;
+    padding-right: 1%;
 }
 
 .loadsave_button{
@@ -98,7 +97,7 @@ nav .navbar-brand .green
     background-color: white;
     height: 50%;
     text-align: center;
-    width: 6.5%;
+    width: fit-content;
 }
 
 .loadsave_button:hover{
@@ -151,6 +150,8 @@ nav .navbar-brand .green
     height: 100%; /* Ensure the images take the full height of the container */
     transform: scale(2.1);    
 }
+
+
 
 
 /* Popup box BEGIN */
@@ -299,4 +300,130 @@ nav .navbar-brand .green
     background-color: #dedcdc;
     text-align: center;
     margin-left: 2%;
+}
+
+
+
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) { /* Target screens narrower than 768px */
+
+    /* Navbar brand font size for mobile */
+    nav .navbar-brand {
+        font-size: large;
+    }
+
+
+    /* Adjust button sizes for mobile */
+    .button {
+        width: 150px; /* Reduce width */
+        height: 150px; /* Reduce height */
+    }
+
+    /* Container padding adjustment */
+    .container.p-3 {
+        padding: 10px; /* Add some padding for small screens */
+    }
+
+    /* Make #top-bar vertical on mobile */
+    #top-bar {
+        display: grid;
+        justify-content: space-between; /* Distributes items in each row */
+        align-items: center;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* Creates two equal-width columns */
+        grid-template-rows: auto auto auto; /* Three rows for layout */
+        gap: 10px; /* Optional spacing between items */
+        padding: 0;
+        width: 100%;
+    }
+
+    /* Input field adjustments */
+    .input_name {
+        display: block;
+        grid-column: span 2;
+        width: 100%;
+        margin-left: 10%;
+        margin-bottom: 0%;
+        padding: 8px;
+    }
+
+    #guessed_counter{
+        grid-column: span 1;
+        margin: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    #timer{
+        grid-column: span 1;
+        margin: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    #multiplayer_button{
+        width: 100%;
+    }
+
+    #loadsave_div{
+        width: 100%;
+        gap: 5%;
+    }
+
+    .loadsave_button{
+        height: 100%;
+    }
+
+    /* #regions grid adjustment for mobile */
+    #regions {
+        grid-template-columns: 1fr; /* Display as two columns */
+        padding: 10px; /* Reduce padding */
+        width: 100%;
+    }
+
+    /* Adjust layout of .pokemonbox to display better on mobile */
+    .pokemonbox {
+        grid-template-columns: repeat(auto-fit, minmax(30px, 1fr)); /* Adjust columns */
+        padding: 5%;
+        padding-right: 8%;
+        margin-bottom: 5%;
+    }
+
+    /* Popup box width adjustment */
+    #pop_up_box {
+        width: 90%; /* Use a larger percentage of screen width */
+    }
+
+    /* Button adjustments for small screens */
+    #host_game, #join_game, #join_room_confirm {
+        width: 80%; /* Increase width on mobile */
+        margin-top: 5%;
+    }
+
+    /* Adjust width of copy_paste button */
+    .copy_paste {
+        width: 50px;
+        height: 50px;
+    }
+
+    /* Adjust widths of player cards */
+    .player_card {
+        width: 100%;
+        margin-left: 0;
+        margin-bottom: 10px; /* Add space below cards */
+        text-align: center;
+    }
+
+
+    /* Adjust grid layout of #player_list to stack vertically */
+    #player_list {
+        display: grid;
+        grid-auto-flow: row;
+        justify-content: space-between; /* Distributes items in each row */
+        grid-template-columns: repeat(auto-fit, 30%); /* Creates two equal-width columns */
+        gap: 1% 0;
+        margin-top: 5%;
+        width: 100%
+    }
 }
