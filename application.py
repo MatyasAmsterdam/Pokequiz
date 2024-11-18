@@ -1,5 +1,6 @@
 import os
-
+import csv
+import random
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
@@ -8,7 +9,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required
+from helpers import apology, login_required, get_question, get_compatible_pokemon
 
 
 # flask --app application run
@@ -22,8 +23,22 @@ app.secret_key = 'fix dit later'
 socketio = SocketIO(app)
 
 room_list = {}
-room_scores = {}
+room_guess_scores = {}
+room_point_scores = {}
 room_progress = {}
+
+pokemon_dict = {}
+with open('resources/pokemon_properties.csv', mode='r', newline='', encoding='utf-8') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for idx, row in enumerate(reader):
+        pokemon_dict[idx] = {
+            'number': int(row['number']),
+            'name': row['name'],
+            'type1': row['type1'],
+            'type2': row['type2'],
+            'region': row['region'],
+            'stage': int(row['stage'])
+        }
 
 
 # Ensure templates are auto-reloaded
@@ -203,15 +218,17 @@ def message(data):
 def create_room(data):
     room = data['room']
     display_name = data['display_name']
-    room_list[room] = [display_name]
-    room_scores[room] = {display_name: 0}
+    room_list[room] = {'party_mode': data['party_mode'], 'players': [display_name]}
+    room_guess_scores[room] = {display_name: 0}
+    room_point_scores[room] = {display_name: 0}
     room_progress[room] = data['room_progress']
 
     print(f"User {data['display_name']} has joined room room {data['room']}")
-    print(f"Users in room: {room_list[room]}")
+    print(f"Users in room: {room_list[room]['players']}")
 
     join_room(data['room'])
-    socketio.emit('room_created', {'room': room, 'user': display_name, 'scores': room_scores[room]}, room=room)
+    print(f"Room scores: {room_guess_scores[room]} and {room_point_scores[room]}")
+    socketio.emit('room_created', {'room': room, 'user': display_name, 'guess_scores': room_guess_scores[room], 'point_scores': room_point_scores[room], 'party_mode': room_list[room]['party_mode']}, room=room)
 
 
 @socketio.on('join')
@@ -221,15 +238,15 @@ def join(data):
     display_name = data['display_name']
 
     if room in room_list.keys():
-        room_list[room].append(display_name)
-        room_scores[room][display_name] = 0
+        room_list[room]['players'].append(display_name)
+        room_guess_scores[room][display_name] = 0
+        room_point_scores[room][display_name] = 0
     
     print(f"User {data['display_name']} has joined room room {data['room']}")
     print(f"Users in room: {room_list[room]}")
 
     join_room(data['room'])
-    socketio.emit('player_joined', {'room': room, 'user': display_name, 'scores': room_scores[room]}, room=room)
-    socketio.emit('room_joined', {})
+    socketio.emit('player_joined', {'room': room, 'user': display_name, 'guess_scores': room_guess_scores[room], 'point_scores': room_point_scores[room], 'party_mode': room_list[room]['party_mode']}, room=room)
 
 
 @socketio.on('leave')
@@ -241,7 +258,7 @@ def get_room_users(data):
     room = data['room']
     room_users = room_list[room]
     progress = room_progress[room]
-    socketio.emit('room_data', {'room': room, 'users': room_users, 'room_progress': progress}, room=request.sid)
+    socketio.emit('room_data', {'room': room, 'users': room_users['players'], 'party_mode': room_list[room]['party_mode'], 'room_progress': progress}, room=request.sid)
 
 
 @socketio.on('add_pokemon')
@@ -249,16 +266,20 @@ def add_pokemon(data):
     dex_id = data['dex_id']
     room = data['room']
     user = data['display_name']
-    room_scores[room][user] += 1
+    room_guess_scores[room][user] += 1
     room_progress[room].append(dex_id)
 
-    emit('pokemon_added', {'dex_id': dex_id, 'user': user, 'scores': room_scores[room]}, room=room)
+    if room_list[room]['party_mode']:
+        room_point_scores[room][user] += 100
+        # TODO
+
+    emit('pokemon_added', {'dex_id': dex_id, 'user': user, 'guess_scores': room_guess_scores[room], 'point_scores': room_point_scores[room], 'party_mode': room_list[room]['party_mode']}, room=room)
 
 
 @socketio.on("sync_timers_request")
 def sync_timers_request(data):
     room = data['room']
-    emit('timers_sync_request', {'room': room, 'host_name': room_list[room][0]}, room=room)
+    emit('timers_sync_request', {'room': room, 'host_name': room_list[room]['players'][0]}, room=room)
 
 @socketio.on("sync_timers")
 def sync_timers(data):
