@@ -1,5 +1,4 @@
 import os
-import csv
 import random
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, jsonify
@@ -9,7 +8,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, get_question, get_compatible_pokemon
+from helpers import apology, login_required, get_question, get_compatible_pokemon, calculate_points
 
 
 # flask --app application run
@@ -26,19 +25,7 @@ room_list = {}
 room_guess_scores = {}
 room_point_scores = {}
 room_progress = {}
-
-pokemon_dict = {}
-with open('resources/pokemon_properties.csv', mode='r', newline='', encoding='utf-8') as csvfile:
-    reader = csv.DictReader(csvfile)
-    for idx, row in enumerate(reader):
-        pokemon_dict[idx] = {
-            'number': int(row['number']),
-            'name': row['name'],
-            'type1': row['type1'],
-            'type2': row['type2'],
-            'region': row['region'],
-            'stage': int(row['stage'])
-        }
+room_challenges = {}
 
 
 # Ensure templates are auto-reloaded
@@ -222,6 +209,7 @@ def create_room(data):
     room_guess_scores[room] = {display_name: 0}
     room_point_scores[room] = {display_name: 0}
     room_progress[room] = data['room_progress']
+    room_challenges[room] = None
 
     print(f"User {data['display_name']} has joined room room {data['room']}")
     print(f"Users in room: {room_list[room]['players']}")
@@ -270,11 +258,35 @@ def add_pokemon(data):
     room_progress[room].append(dex_id)
 
     if room_list[room]['party_mode']:
-        room_point_scores[room][user] += 100
-        # TODO
+        challenge = room_challenges[room]
+        if challenge:
+            if dex_id + 1 in challenge[1]:
+                room_point_scores[room][user] += challenge[2]
+                room_challenges[room] = None
+                emit('challenge_updated', {'question': None}, room=room)
+            else:
+                room_point_scores[room][user] += 100
+        else:
+            room_point_scores[room][user] += 100
+
+            # 1/5 chance for a new challenge after correct guess
+            numberr = random.randint(1, 5)
+            print(numberr)
+            if numberr == 5:
+                types, region, stage = False, False, False
+
+                while not types or not region or not stage:
+                    types = bool(random.getrandbits(1))
+                    region = bool(random.getrandbits(1))
+                    stage = bool(random.getrandbits(1))
+
+                question, answers = get_question(room_progress[room], types, region, stage)
+                room_challenges[room] = (question, answers, calculate_points(len(answers)))
+
+                emit('challenge_updated', {'question': question}, room=room)
 
     emit('pokemon_added', {'dex_id': dex_id, 'user': user, 'guess_scores': room_guess_scores[room], 'point_scores': room_point_scores[room], 'party_mode': room_list[room]['party_mode']}, room=room)
-
+  
 
 @socketio.on("sync_timers_request")
 def sync_timers_request(data):

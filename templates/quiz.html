@@ -20,6 +20,11 @@
 
 <div id="player_list"> </div>
 
+<div id="challenge">
+    <h4 id="question"></h4>
+    <h4 id="challenge_timer"></h4>
+</div>
+
 <!-- Save popup -->
 <div id="save_popup" class="hover_bkgr_fricc">
     <span class="helper"></span>
@@ -217,6 +222,19 @@
             }
             else{
                 generatePlayerDisplay(guess_scores);
+            }
+        })
+
+        socket.on('challenge_updated', data => {
+            question = data.question
+            console.log(question)
+            if (question === null){
+                document.getElementById("question").textContent = "";
+                document.getElementById("challenge_timer").textContent = "";
+            }
+            else{
+                document.getElementById("question").textContent = data.question;
+                document.getElementById("challenge_timer").textContent = "30";
             }
         })
 

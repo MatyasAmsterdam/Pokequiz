@@ -3,11 +3,23 @@ import requests
 import urllib.parse
 import math
 import random
+import csv
 
 from flask import redirect, render_template, request, session
 from functools import wraps
 
 pokemon_dict = {}
+with open('resources/pokemon_properties.csv', mode='r', newline='', encoding='utf-8') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for idx, row in enumerate(reader):
+        pokemon_dict[idx] = {
+            'number': int(row['number']),
+            'name': row['name'],
+            'type1': row['type1'],
+            'type2': row['type2'],
+            'region': row['region'],
+            'stage': int(row['stage'])
+        }
 
 
 def apology(message, code=400):
@@ -38,10 +50,12 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 def get_question(guessed_list, types = False, region = False, stage = False):
     index = random.randint(0, 1024)
     type2 = False
     
+    # Ignore Pokémon that have already been geussed
     while index in guessed_list:
         index = random.randint(0, 1024)
 
@@ -68,14 +82,18 @@ def get_question(guessed_list, types = False, region = False, stage = False):
         else:
             question += f"from the {pokemon['region']} region"
             
-    compatible_pokemon = get_compatible_pokemon(pokemon, types, type2, region, stage)
+    compatible_pokemon = get_compatible_pokemon(pokemon, guessed_list, types, type2, region, stage)
     
     return question, compatible_pokemon
 
 
-def get_compatible_pokemon(properties, types = False, type2 = False, region = False, stage = False):
+def get_compatible_pokemon(properties, guessed_list = [], types = False, type2 = False, region = False, stage = False):
     compatible_pokemon = []
     for pokemon in pokemon_dict.values():
+
+        # Progress check
+        if pokemon['number'] + 1 in guessed_list:
+            continue
         
         # Stage check
         if stage and pokemon['stage'] != properties['stage']:
@@ -98,6 +116,14 @@ def get_compatible_pokemon(properties, types = False, type2 = False, region = Fa
         if region and pokemon['region'] != properties['region']:
             continue
 
-        compatible_pokemon.append(pokemon['name'])
+        compatible_pokemon.append(pokemon['number'])
     
     return compatible_pokemon
+
+
+def calculate_points(potential_answers):
+    base_reward = 100
+    scaling_factor = 30
+    
+    reward = base_reward + (scaling_factor // potential_answers) * scaling_factor
+    return round(reward, -2)

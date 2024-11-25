@@ -335,8 +335,10 @@ nav .navbar-brand .green
     margin-left: 2%;
 }
 
-
-
+#challenge{
+    display: flex;
+    gap: 5%;
+}
 
 
 /* Responsive adjustments */
