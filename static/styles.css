@@ -335,9 +335,21 @@ nav .navbar-brand .green
     margin-left: 2%;
 }
 
+#challenge_box{
+    width: 97vw;
+}
+
 #challenge{
     display: flex;
-    gap: 5%;
+    justify-content: space-between;
+    gap: 3%;
+    border: 3px solid black;
+    background-color: #edd374;
+    margin-left: 33%;
+    padding-left: 2%;
+    padding-right: 2%;
+    width: 40%;
+    margin-top: 1%;
 }
 
 

@@ -20,9 +20,11 @@
 
 <div id="player_list"> </div>
 
-<div id="challenge">
-    <h4 id="question"></h4>
-    <h4 id="challenge_timer"></h4>
+<div id="challenge_box">
+    <div id="challenge" style="display: none;">
+        <h4 id="question"></h4>
+        <h4 id="challenge_timer"></h4>
+    </div>
 </div>
 
 <!-- Save popup -->
@@ -178,9 +180,11 @@
     let minutes = 0;
     let seconds = 0;
     var display_name = "Nameless User";
+    let challengeTimer_interval;
     const guessed_list = [];
     var num_guessed = 0
     var timer = ""
+    var challenge_timer = ""
     var progress = "";
     var multiplayer = false;
     var party_mode = false;
@@ -231,10 +235,23 @@
             if (question === null){
                 document.getElementById("question").textContent = "";
                 document.getElementById("challenge_timer").textContent = "";
+                document.getElementById("challenge").style.display = 'none';
+
+                console.log("Kanker")
+                console.log(challengeTimer_interval)
+                if (challengeTimer_interval == null) {
+                    clearInterval(challengeTimer_interval);
+                    console.log("Interval Cleared by socket")
+                }
             }
             else{
                 document.getElementById("question").textContent = data.question;
-                document.getElementById("challenge_timer").textContent = "30";
+                document.getElementById("challenge_timer").textContent = "60";
+                document.getElementById("challenge").style.display = 'flex';
+
+                challenge_timer = 60;
+                clearInterval(challengeTimer_interval);
+                challengeTimer_interval = setInterval(updateChallengeTimer, 1000);
             }
         })
 
@@ -501,6 +518,16 @@
         document.getElementById("timer").textContent = timer;
     }
 
+    function updateChallengeTimer() {
+        challenge_timer --;
+        document.getElementById("challenge_timer").textContent = challenge_timer;
+
+        if (challenge_timer < 1) {
+            clearInterval(challengeTimer_interval)
+            console.log("Interval Cleared by function")
+            socket.emit('clear_challenge', {'room': room_id})
+        }
+    }
 
     // Run the updateTimer function every second (1000 ms)
     let timer_interval;

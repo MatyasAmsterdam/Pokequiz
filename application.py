@@ -270,12 +270,10 @@ def add_pokemon(data):
             room_point_scores[room][user] += 100
 
             # 1/5 chance for a new challenge after correct guess
-            numberr = random.randint(1, 5)
-            print(numberr)
-            if numberr == 5:
+            if random.randint(1, 5):
                 types, region, stage = False, False, False
 
-                while not types or not region or not stage:
+                while not types and not region and not stage:
                     types = bool(random.getrandbits(1))
                     region = bool(random.getrandbits(1))
                     stage = bool(random.getrandbits(1))
@@ -287,6 +285,14 @@ def add_pokemon(data):
 
     emit('pokemon_added', {'dex_id': dex_id, 'user': user, 'guess_scores': room_guess_scores[room], 'point_scores': room_point_scores[room], 'party_mode': room_list[room]['party_mode']}, room=room)
   
+
+@socketio.on('clear_challenge')
+def clear_challenge(data):
+    room = data['room']
+    room_challenges[room] = None
+
+    emit('challenge_updated', {'question': None}, room=room)
+
 
 @socketio.on("sync_timers_request")
 def sync_timers_request(data):

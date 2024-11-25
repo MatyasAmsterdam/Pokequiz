@@ -121,9 +121,12 @@ def get_compatible_pokemon(properties, guessed_list = [], types = False, type2 =
     return compatible_pokemon
 
 
-def calculate_points(potential_answers):
-    base_reward = 100
-    scaling_factor = 30
+def calculate_points(x):
+    base_reward = 200
+    scaling_factor = 50
     
-    reward = base_reward + (scaling_factor // potential_answers) * scaling_factor
-    return round(reward, -2)
+    reward = base_reward + (scaling_factor // x) * scaling_factor
+    
+    if reward > 2000:
+        return 2000    
+    return round(reward / 50) * 50
