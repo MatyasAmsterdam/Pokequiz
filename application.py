@@ -270,7 +270,7 @@ def add_pokemon(data):
             room_point_scores[room][user] += 100
 
             # 1/5 chance for a new challenge after correct guess
-            if random.randint(1, 5):
+            if random.randint(1, 5) == 5:
                 types, region, stage = False, False, False
 
                 while not types and not region and not stage:
